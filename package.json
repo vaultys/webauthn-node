@@ -1,0 +1,47 @@
+{
+  "name": "@vaultys/webauthn-node",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "install": "node-pre-gyp install --fallback-to-build || node install.js",
+    "package": "node-pre-gyp package",
+    "upload-binary": "node-pre-gyp package && node-pre-gyp-github publish --release",
+    "test:native": "tsx src/test.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@9.15.4+sha512.b2dc20e2fc72b3e18848459b37359a32064663e5627a51e4c74b2c29dd8e8e0491483c3abb40789cfd578bf362fb6ba8261b05f0387d76792ed6e23ea3b1b6a0",
+  "dependencies": {
+    "@mapbox/node-pre-gyp": "^2.0.0",
+    "base64url": "^3.0.1",
+    "bindings": "^1.5.0",
+    "node-addon-api": "^8.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.14.1",
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.3"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "os": [
+    "darwin",
+    "linux",
+    "win32"
+  ],
+  "cpu": [
+    "x64",
+    "arm64"
+  ],
+  "gypfile": true,
+  "binary": {
+    "module_name": "fido2",
+    "module_path": "./lib/binding/{platform}-{arch}/",
+    "host": "https://github.com/yourusername/webauthn-node/releases/download/",
+    "remote_path": "v{version}",
+    "package_name": "{module_name}-v{version}-{platform}-{arch}.tar.gz"
+  }
+}
