@@ -5,7 +5,7 @@ import readline from "readline";
 // Import the native module
 // Note: You may need to configure your TypeScript setup to handle native modules
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const fido2 = require("bindings")("fido2");
+import fido2 from "../binding";
 
 // Define types for WebAuthn API
 export interface PublicKeyCredentialRpEntity {

@@ -4,14 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "install": "node install.js",
-    "prebuild": "node-gyp clean && node-gyp configure",
-    "build:native": "node-gyp rebuild",
-    "build:ts": "tsc",
-    "build": "npm run build:native && npm run build:ts",
-    "clean": "rimraf dist build",
+    "install": "node-pre-gyp install --fallback-to-build || node install.js",
+    "prebuild": "node-pre-gyp clean",
+    "build": "node-pre-gyp rebuild && tsc",
+    "clean": "rimraf dist lib/binding",
     "prepublishOnly": "npm run clean && npm run build",
-    "test": "jest",
     "lint": "eslint src/**/*.ts",
     "package": "node-pre-gyp package",
     "upload-binary": "node-pre-gyp package && node-pre-gyp-github publish --release",
@@ -62,8 +59,9 @@
   "binary": {
     "module_name": "fido2",
     "module_path": "./lib/binding/{platform}-{arch}/",
-    "host": "https://github.com/yourusername/webauthn-node/releases/download/",
+    "host": "https://github.com/vaultys/webauthn-node/releases/download/",
     "remote_path": "v{version}",
     "package_name": "{module_name}-v{version}-{platform}-{arch}.tar.gz"
-  }
+  },
+  "packageManager": "pnpm@9.15.4+sha512.b2dc20e2fc72b3e18848459b37359a32064663e5627a51e4c74b2c29dd8e8e0491483c3abb40789cfd578bf362fb6ba8261b05f0387d76792ed6e23ea3b1b6a0"
 }
