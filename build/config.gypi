@@ -455,9 +455,15 @@
     "napi_version": "9",
     "node_abi_napi": "napi",
     "node_napi_label": "node-v127",
-    "registry": "https://registry.npmjs.org/",
-    "frozen_lockfile": "",
-    "node_gyp": "/Users/fxthoorens/.cache/node/corepack/v1/pnpm/9.15.4/dist/node_modules/node-gyp/bin/node-gyp.js",
-    "user_agent": "pnpm/9.15.4 npm/? node/v22.13.1 darwin arm64"
+    "global_prefix": "/usr/local",
+    "local_prefix": "/Users/fxthoorens/Documents/GitHub/webauthn-node",
+    "globalconfig": "/usr/local/etc/npmrc",
+    "userconfig": "/Users/fxthoorens/.npmrc",
+    "init_module": "/Users/fxthoorens/.npm-init.js",
+    "npm_version": "10.9.2",
+    "node_gyp": "/usr/local/lib/node_modules/npm/node_modules/node-gyp/bin/node-gyp.js",
+    "cache": "/Users/fxthoorens/.npm",
+    "user_agent": "npm/10.9.2 node/v22.13.1 darwin arm64 workspaces/false",
+    "prefix": "/usr/local"
   }
 }

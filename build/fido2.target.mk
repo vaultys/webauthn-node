@@ -55,7 +55,7 @@ INCS_Debug := \
 	-I/Users/fxthoorens/Library/Caches/node-gyp/22.13.1/deps/uv/include \
 	-I/Users/fxthoorens/Library/Caches/node-gyp/22.13.1/deps/zlib \
 	-I/Users/fxthoorens/Library/Caches/node-gyp/22.13.1/deps/v8/include \
-	-I/Users/fxthoorens/Documents/GitHub/webauthn-node/node_modules/.pnpm/node-addon-api@8.3.1/node_modules/node-addon-api \
+	-I/Users/fxthoorens/Documents/GitHub/webauthn-node/node_modules/node-addon-api \
 	-I/usr/local/include \
 	-I/opt/homebrew/include
 
@@ -110,7 +110,7 @@ INCS_Release := \
 	-I/Users/fxthoorens/Library/Caches/node-gyp/22.13.1/deps/uv/include \
 	-I/Users/fxthoorens/Library/Caches/node-gyp/22.13.1/deps/zlib \
 	-I/Users/fxthoorens/Library/Caches/node-gyp/22.13.1/deps/v8/include \
-	-I/Users/fxthoorens/Documents/GitHub/webauthn-node/node_modules/.pnpm/node-addon-api@8.3.1/node_modules/node-addon-api \
+	-I/Users/fxthoorens/Documents/GitHub/webauthn-node/node_modules/node-addon-api \
 	-I/usr/local/include \
 	-I/opt/homebrew/include
 
