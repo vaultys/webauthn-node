@@ -62,16 +62,16 @@ jobs:
               }
           }
 
-          if (Test-Path "$ExtractPath\libfido2-1.15.0-win\Win32\Release\v143\dynamic\") {
-              Copy-Item "$ExtractPath\libfido2-1.15.0-win\Win32\Release\v143\dynamic\*" -Destination "C:\Program Files\libfido2\lib\" -Recurse -Force
+          if (Test-Path "$ExtractPath\libfido2-1.15.0-win\Win64\Release\v143\dynamic\") {
+              Copy-Item "$ExtractPath\libfido2-1.15.0-win\Win64\Release\v143\dynamic\*" -Destination "C:\Program Files\libfido2\lib\" -Recurse -Force
           } else {
               Get-ChildItem -Path $ExtractPath -Recurse -Directory | Where-Object { $_.Name -eq "dynamic" } | ForEach-Object {
                   Copy-Item "$($_.FullName)\*" -Destination "C:\Program Files\libfido2\lib\" -Recurse -Force
               }
           }
 
-          if (Test-Path "$ExtractPath\libfido2-1.15.0-win\Win32\Release\v143\dynamic\") {
-              Copy-Item "$ExtractPath\libfido2-1.15.0-win\Win32\Release\v143\dynamic\*" -Destination "C:\Program Files\libfido2\bin\" -Recurse -Force
+          if (Test-Path "$ExtractPath\libfido2-1.15.0-win\Win64\Release\v143\dynamic\") {
+              Copy-Item "$ExtractPath\libfido2-1.15.0-win\Win64\Release\v143\dynamic\*" -Destination "C:\Program Files\libfido2\bin\" -Recurse -Force
           } else {
               Get-ChildItem -Path $ExtractPath -Recurse -Directory | Where-Object { $_.Name -eq "dynamic" } | ForEach-Object {
                   Copy-Item "$($_.FullName)\*" -Destination "C:\Program Files\libfido2\bin\" -Recurse -Force
