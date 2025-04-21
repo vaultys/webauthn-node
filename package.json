@@ -17,10 +17,23 @@
     "upload-binary": "node-pre-gyp package && node-pre-gyp-github publish --release",
     "test:native": "tsx src/test.ts"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "packageManager": "pnpm@9.15.4+sha512.b2dc20e2fc72b3e18848459b37359a32064663e5627a51e4c74b2c29dd8e8e0491483c3abb40789cfd578bf362fb6ba8261b05f0387d76792ed6e23ea3b1b6a0",
+  "keywords": [
+    "webauthn",
+    "fido2",
+    "security",
+    "authentication",
+    "libfido2"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vaultys/webauthn-node.git"
+  },
+  "bugs": {
+    "url": "https://github.com/vaultys/webauthn-node/issues"
+  },
+  "homepage": "https://github.com/vaultys/webauthn-node#readme",
+  "author": "FX Thoorens - Vaultys",
+  "license": "MIT",
   "dependencies": {
     "@mapbox/node-pre-gyp": "^2.0.0",
     "base64url": "^3.0.1",
@@ -29,6 +42,7 @@
   },
   "devDependencies": {
     "@types/node": "^22.14.1",
+    "rimraf": "^6.0.1",
     "tsx": "^4.19.3",
     "typescript": "^5.8.3"
   },
