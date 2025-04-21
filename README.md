@@ -122,6 +122,15 @@ A convenience object mimicking the browser's navigator.credentials API.
 - `credentials.create(options)`: Create a new credential
 - `credentials.get(options)`: Get an assertion from an existing credential
 
+## Testing
+you should plug your test fido2 key before (like yubikey)
+
+run tests using
+`FIDO2_PIN=123456 npm run test`
+
+Touch your key 12 times to finish the tests
+
+
 ## Troubleshooting
 
 ### Linux
