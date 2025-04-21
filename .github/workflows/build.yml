@@ -22,20 +22,74 @@ jobs:
             libfido2_install: brew install libfido2
             platform: darwin
           - os: windows-latest
-            libfido2_install: choco install -y libfido2
             platform: win32
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install libfido2
+      - name: Install libfido2 (Linux/macOS)
+        if: matrix.os != 'windows-latest'
         run: ${{ matrix.libfido2_install }}
         shell: bash
 
-      - name: Set LIBFIDO2_PATH on Windows
+      - name: Download and Install libfido2 for Windows
         if: matrix.os == 'windows-latest'
-        run: echo "LIBFIDO2_PATH=C:\Program Files\libfido2" >> $env:GITHUB_ENV
         shell: pwsh
+        run: |
+          # Create directories
+          New-Item -ItemType Directory -Force -Path "C:\Program Files\libfido2\include"
+          New-Item -ItemType Directory -Force -Path "C:\Program Files\libfido2\lib"
+          New-Item -ItemType Directory -Force -Path "C:\Program Files\libfido2\bin"
+
+          # Download the libfido2 release zip from Yubico
+          $Url = "https://developers.yubico.com/libfido2/Releases/libfido2-1.15.0-win.zip"
+          $DownloadPath = "C:\libfido2.zip"
+          Invoke-WebRequest -Uri $Url -OutFile $DownloadPath
+
+          # Create a temporary directory for extraction
+          $ExtractPath = "C:\libfido2-extract"
+          New-Item -ItemType Directory -Force -Path $ExtractPath
+
+          # Extract the zip file
+          Expand-Archive -Path $DownloadPath -DestinationPath $ExtractPath -Force
+
+          # Copy the files to our expected location
+          if (Test-Path "$ExtractPath\libfido2-1.15.0-win\include") {
+              Copy-Item "$ExtractPath\libfido2-1.15.0-win\include\*" -Destination "C:\Program Files\libfido2\include\" -Recurse -Force
+          } else {
+              Get-ChildItem -Path $ExtractPath -Recurse -Directory | Where-Object { $_.Name -eq "include" } | ForEach-Object {
+                  Copy-Item "$($_.FullName)\*" -Destination "C:\Program Files\libfido2\include\" -Recurse -Force
+              }
+          }
+
+          if (Test-Path "$ExtractPath\libfido2-1.15.0-win\lib") {
+              Copy-Item "$ExtractPath\libfido2-1.15.0-win\lib\*" -Destination "C:\Program Files\libfido2\lib\" -Recurse -Force
+          } else {
+              Get-ChildItem -Path $ExtractPath -Recurse -Directory | Where-Object { $_.Name -eq "lib" } | ForEach-Object {
+                  Copy-Item "$($_.FullName)\*" -Destination "C:\Program Files\libfido2\lib\" -Recurse -Force
+              }
+          }
+
+          if (Test-Path "$ExtractPath\libfido2-1.15.0-win\bin") {
+              Copy-Item "$ExtractPath\libfido2-1.15.0-win\bin\*" -Destination "C:\Program Files\libfido2\bin\" -Recurse -Force
+          } else {
+              Get-ChildItem -Path $ExtractPath -Recurse -Directory | Where-Object { $_.Name -eq "bin" } | ForEach-Object {
+                  Copy-Item "$($_.FullName)\*" -Destination "C:\Program Files\libfido2\bin\" -Recurse -Force
+              }
+          }
+
+          # Set environment variable
+          echo "LIBFIDO2_PATH=C:\Program Files\libfido2" | Out-File -FilePath $env:GITHUB_ENV -Append
+
+          # Check what files were copied
+          Write-Host "Files in include directory:"
+          Get-ChildItem "C:\Program Files\libfido2\include"
+
+          Write-Host "Files in lib directory:"
+          Get-ChildItem "C:\Program Files\libfido2\lib"
+
+          Write-Host "Files in bin directory:"
+          Get-ChildItem "C:\Program Files\libfido2\bin"
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -44,7 +98,7 @@ jobs:
           cache: "npm"
 
       - name: Create lib directories
-        run: mkdir -p binding/${{ matrix.platform }}-x64
+        run: mkdir -p lib/binding/${{ matrix.platform }}-x64
         shell: bash
 
       - name: Install dependencies
