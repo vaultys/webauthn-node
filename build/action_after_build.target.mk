@@ -3,12 +3,22 @@
 TOOLSET := target
 TARGET := action_after_build
 ### Generated for copy rule.
-/Users/fxthoorens/Documents/GitHub/webauthn-node/lib/binding/darwin-arm64/fido2.node: TOOLSET := $(TOOLSET)
-/Users/fxthoorens/Documents/GitHub/webauthn-node/lib/binding/darwin-arm64/fido2.node: $(builddir)/fido2.node FORCE_DO_CMD
+/Users/fxthoorens/Documents/GitHub/webauthn-node/binding/darwin-arm64/fido2.node: TOOLSET := $(TOOLSET)
+/Users/fxthoorens/Documents/GitHub/webauthn-node/binding/darwin-arm64/fido2.node: $(builddir)/fido2.node FORCE_DO_CMD
 	$(call do_cmd,copy)
 
-all_deps += /Users/fxthoorens/Documents/GitHub/webauthn-node/lib/binding/darwin-arm64/fido2.node
-binding_gyp_action_after_build_target_copies = /Users/fxthoorens/Documents/GitHub/webauthn-node/lib/binding/darwin-arm64/fido2.node
+all_deps += /Users/fxthoorens/Documents/GitHub/webauthn-node/binding/darwin-arm64/fido2.node
+/Users/fxthoorens/Documents/GitHub/webauthn-node/binding/linux-arm64/fido2.node: TOOLSET := $(TOOLSET)
+/Users/fxthoorens/Documents/GitHub/webauthn-node/binding/linux-arm64/fido2.node: $(builddir)/fido2.node FORCE_DO_CMD
+	$(call do_cmd,copy)
+
+all_deps += /Users/fxthoorens/Documents/GitHub/webauthn-node/binding/linux-arm64/fido2.node
+/Users/fxthoorens/Documents/GitHub/webauthn-node/binding/win32-arm64/fido2.node: TOOLSET := $(TOOLSET)
+/Users/fxthoorens/Documents/GitHub/webauthn-node/binding/win32-arm64/fido2.node: $(builddir)/fido2.node FORCE_DO_CMD
+	$(call do_cmd,copy)
+
+all_deps += /Users/fxthoorens/Documents/GitHub/webauthn-node/binding/win32-arm64/fido2.node
+binding_gyp_action_after_build_target_copies = /Users/fxthoorens/Documents/GitHub/webauthn-node/binding/darwin-arm64/fido2.node /Users/fxthoorens/Documents/GitHub/webauthn-node/binding/linux-arm64/fido2.node /Users/fxthoorens/Documents/GitHub/webauthn-node/binding/win32-arm64/fido2.node
 
 ### Rules for final target.
 # Build our special outputs first.

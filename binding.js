@@ -1,6 +1,17 @@
-const binary = require("@mapbox/node-pre-gyp");
 const path = require("path");
-const binding_path = binary.find(path.resolve(path.join(__dirname, "./package.json")));
-const binding = require(binding_path);
+const os = require("os");
 
-module.exports = binding;
+// Map node.js platform names to expected directory names
+const platformMap = {
+  darwin: "darwin",
+  linux: "linux",
+  win32: "win32",
+};
+
+// Get the correct platform name
+const platform = platformMap[os.platform()] || os.platform();
+const arch = process.arch;
+
+// Load the module
+const binary = path.join(__dirname, "binding", `${platform}-${arch}`, "fido2.node");
+module.exports = require(binary);

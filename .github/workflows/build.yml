@@ -2,242 +2,85 @@ name: Build and Publish
 
 on:
   push:
-    branches:
-      - main
-    tags:
-      - "v*"
+    branches: [main]
+    tags: ["v*"]
   pull_request:
-    branches:
-      - main
+    branches: [main]
 
 jobs:
-  # Build for Linux
-  build-linux:
-    runs-on: ubuntu-latest
-    if: success() && (github.event_name != 'pull_request')
+  build:
+    name: Build on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        node-version: [16, 18, 20]
-        arch: [x64]
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        include:
+          - os: ubuntu-latest
+            libfido2_install: sudo apt-get update && sudo apt-get install -y libfido2-dev
+            platform: linux
+          - os: macos-latest
+            libfido2_install: brew install libfido2
+            platform: darwin
+          - os: windows-latest
+            libfido2_install: choco install -y libfido2
+            platform: win32
+
     steps:
       - uses: actions/checkout@v4
 
       - name: Install libfido2
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libfido2-dev
+        run: ${{ matrix.libfido2_install }}
+        shell: bash
 
-      - name: Setup Node.js ${{ matrix.node-version }}
+      - name: Set LIBFIDO2_PATH on Windows
+        if: matrix.os == 'windows-latest'
+        run: echo "LIBFIDO2_PATH=C:\Program Files\libfido2" >> $env:GITHUB_ENV
+        shell: pwsh
+
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
-          architecture: ${{ matrix.arch }}
+          node-version: "20"
           cache: "npm"
+
+      - name: Create lib directories
+        run: mkdir -p binding/${{ matrix.platform }}-x64
+        shell: bash
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Create lib/binding directory
-        run: mkdir -p lib/binding/linux-${{ matrix.arch }}
+      - name: Build
+        run: npm run build
 
-      - name: Build with node-pre-gyp
-        run: npx node-pre-gyp rebuild
+      - name: Create package
+        run: npm run package
 
-      - name: Build TypeScript
-        run: npm run build:ts
-
-      - name: Package binary
-        run: npx node-pre-gyp package
-
-      - name: Upload binary artifact
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: webauthn-node-linux-node${{ matrix.node-version }}-${{ matrix.arch }}
+          name: webauthn-node-${{ matrix.platform }}
           path: build/stage/*/*/*.tar.gz
-          retention-days: 7
+          if-no-files-found: warn
 
-  # Build for macOS
-  build-macos:
-    runs-on: macos-latest
-    if: success() && (github.event_name != 'pull_request')
-    strategy:
-      matrix:
-        node-version: [16, 18, 20]
-        arch: [x64, arm64]
-        exclude:
-          # GitHub Actions doesn't support macOS arm64 runners yet,
-          # but you can build arm64 binaries on x64 runners with cross-compilation
-          - arch: arm64
-            node-version: 16
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Install libfido2
-        run: brew install libfido2
-
-      - name: Setup Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: "npm"
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Create lib/binding directory
-        run: mkdir -p lib/binding/darwin-${{ matrix.arch }}
-
-      - name: Set up cross-compilation for arm64
-        if: matrix.arch == 'arm64'
-        run: |
-          echo "Setting up for arm64 build"
-          export npm_config_arch=arm64
-
-      - name: Build with node-pre-gyp
-        run: npx node-pre-gyp rebuild
-        env:
-          npm_config_arch: ${{ matrix.arch }}
-
-      - name: Build TypeScript
-        run: npm run build:ts
-
-      - name: Package binary
-        run: npx node-pre-gyp package
-
-      - name: Upload binary artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: webauthn-node-macos-node${{ matrix.node-version }}-${{ matrix.arch }}
-          path: build/stage/*/*/*.tar.gz
-          retention-days: 7
-
-  # Build for Windows
-  build-windows:
-    runs-on: windows-latest
-    if: success() && (github.event_name != 'pull_request')
-    strategy:
-      matrix:
-        node-version: [16, 18, 20]
-        arch: [x64]
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup Chocolatey and install libfido2
-        shell: powershell
-        run: |
-          choco install -y libfido2
-          Write-Output "LIBFIDO2_PATH=C:\Program Files\libfido2" | Out-File -FilePath $env:GITHUB_ENV -Append
-
-      - name: Setup Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node-version }}
-          architecture: ${{ matrix.arch }}
-          cache: "npm"
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Create lib/binding directory
-        shell: powershell
-        run: New-Item -ItemType Directory -Force -Path .\lib\binding\win32-${{ matrix.arch }}
-
-      - name: Build with node-pre-gyp
-        run: npx node-pre-gyp rebuild
-
-      - name: Build TypeScript
-        run: npm run build:ts
-
-      - name: Package binary
-        run: npx node-pre-gyp package
-
-      - name: Upload binary artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: webauthn-node-win-node${{ matrix.node-version }}-${{ matrix.arch }}
-          path: build/stage/*/*/*.tar.gz
-          retention-days: 7
-
-  # Publish Release when tagged
-  publish-github-release:
-    needs: [build-linux, build-macos, build-windows]
-    if: startsWith(github.ref, 'refs/tags/v')
+  release:
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/')
     runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
       - uses: actions/checkout@v4
 
-      - name: Get the version
-        id: get_version
-        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
-
       - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
           path: artifacts
 
-      - name: Display structure of downloaded files
-        run: find artifacts -type f | sort
+      - name: List artifacts
+        run: find artifacts -type f
 
-      - name: Create Release
+      - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
-          name: Release ${{ steps.get_version.outputs.VERSION }}
-          draft: false
-          prerelease: false
           files: artifacts/**/*.tar.gz
-
-  # Publish to npm registry
-  publish-npm:
-    needs: [build-linux, build-macos, build-windows]
-    if: startsWith(github.ref, 'refs/tags/v')
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      id-token: write # For provenance
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "18"
-          registry-url: "https://registry.npmjs.org"
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Build TypeScript
-        run: npm run build:ts
-
-      - name: Update package.json for npm publish
-        run: |
-          # Ensure the version in package.json matches the tag
-          VERSION=$(echo ${{ github.ref }} | sed 's/refs\/tags\/v//')
-          npm version $VERSION --no-git-tag-version
-
-      - name: Create .npmrc for authentication
-        run: |
-          echo "//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}" > .npmrc
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      - name: Publish to npm
-        run: npm publish --provenance --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-  # Clean up artifacts after publishing
-  cleanup:
-    needs: [publish-github-release, publish-npm]
-    if: always()
-    runs-on: ubuntu-latest
-    steps:
-      - name: Delete artifacts
-        uses: geekyeggo/delete-artifact@v2
-        with:
-          name: |
-            webauthn-node-linux-*
-            webauthn-node-macos-*
-            webauthn-node-win-*

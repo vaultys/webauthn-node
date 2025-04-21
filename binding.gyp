@@ -51,11 +51,28 @@
     {
       "target_name": "action_after_build",
       "type": "none",
-      "dependencies": [ "<(module_name)" ],
+      "dependencies": [ "fido2" ],
       "copies": [
         {
-          "files": [ "<(PRODUCT_DIR)/<(module_name).node" ],
-          "destination": "<(module_path)"
+          "files": [ "<(PRODUCT_DIR)/fido2.node" ],
+          "destination": "<(module_root_dir)/binding/darwin-<(target_arch)/",
+          "conditions": [
+            ["OS=='mac'", {}]
+          ]
+        },
+        {
+          "files": [ "<(PRODUCT_DIR)/fido2.node" ],
+          "destination": "<(module_root_dir)/binding/linux-<(target_arch)/",
+          "conditions": [
+            ["OS=='linux'", {}]
+          ]
+        },
+        {
+          "files": [ "<(PRODUCT_DIR)/fido2.node" ],
+          "destination": "<(module_root_dir)/binding/win32-<(target_arch)/",
+          "conditions": [
+            ["OS=='win'", {}]
+          ]
         }
       ]
     }

@@ -5,13 +5,12 @@
   "main": "index.js",
   "scripts": {
     "install": "node-pre-gyp install --fallback-to-build || node install.js",
+    "prepare": "mkdir -p binding",
     "prebuild": "node-pre-gyp clean",
     "build": "node-pre-gyp rebuild && tsc",
-    "clean": "rimraf dist lib/binding",
-    "prepublishOnly": "npm run clean && npm run build",
-    "lint": "eslint src/**/*.ts",
+    "build:ts": "tsc",
+    "clean": "rimraf dist binding",
     "package": "node-pre-gyp package",
-    "upload-binary": "node-pre-gyp package && node-pre-gyp-github publish --release",
     "test:native": "tsx src/test.ts"
   },
   "keywords": [
@@ -58,7 +57,7 @@
   "gypfile": true,
   "binary": {
     "module_name": "fido2",
-    "module_path": "./lib/binding/{platform}-{arch}/",
+    "module_path": "./binding/{platform}-{arch}/",
     "host": "https://github.com/vaultys/webauthn-node/releases/download/",
     "remote_path": "v{version}",
     "package_name": "{module_name}-v{version}-{platform}-{arch}.tar.gz"
