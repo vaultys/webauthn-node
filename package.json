@@ -4,7 +4,15 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "install": "node-pre-gyp install --fallback-to-build || node install.js",
+    "install": "node install.js",
+    "prebuild": "node-gyp clean && node-gyp configure",
+    "build:native": "node-gyp rebuild",
+    "build:ts": "tsc",
+    "build": "npm run build:native && npm run build:ts",
+    "clean": "rimraf dist build",
+    "prepublishOnly": "npm run clean && npm run build",
+    "test": "jest",
+    "lint": "eslint src/**/*.ts",
     "package": "node-pre-gyp package",
     "upload-binary": "node-pre-gyp package && node-pre-gyp-github publish --release",
     "test:native": "tsx src/test.ts"
