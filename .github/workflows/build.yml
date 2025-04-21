@@ -2,26 +2,25 @@ name: Build binaries
 
 on:
   push:
-    tags:
-      - "v*"
 
 jobs:
   build-linux:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Install dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y libfido2-dev
-      - uses: actions/setup-node@v2
+      - uses: actions/setup-node@v4
         with:
-          node-version: "16"
+          node-version: "18"
+          cache: "npm"
       - run: npm ci
       - run: npm run build
       - run: npm run package
       - name: Upload binaries
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: linux-binaries
           path: build/stage/webauthn-node/v*/webauthn-node-v*.tar.gz
@@ -29,17 +28,18 @@ jobs:
   build-macos:
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Install dependencies
         run: brew install libfido2
-      - uses: actions/setup-node@v2
+      - uses: actions/setup-node@v4
         with:
-          node-version: "16"
+          node-version: "18"
+          cache: "npm"
       - run: npm ci
       - run: npm run build
       - run: npm run package
       - name: Upload binaries
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: macos-binaries
           path: build/stage/webauthn-node/v*/webauthn-node-v*.tar.gz
@@ -47,19 +47,20 @@ jobs:
   build-windows:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Install dependencies
         run: |
           choco install -y libfido2
-          echo "LIBFIDO2_PATH=C:\Program Files\libfido2" >> $GITHUB_ENV
-      - uses: actions/setup-node@v2
+          echo "LIBFIDO2_PATH=C:\Program Files\libfido2" >> $env:GITHUB_ENV
+      - uses: actions/setup-node@v4
         with:
-          node-version: "16"
+          node-version: "18"
+          cache: "npm"
       - run: npm ci
       - run: npm run build
       - run: npm run package
       - name: Upload binaries
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: windows-binaries
           path: build/stage/webauthn-node/v*/webauthn-node-v*.tar.gz
@@ -67,14 +68,16 @@ jobs:
   publish:
     needs: [build-linux, build-macos, build-windows]
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/download-artifact@v2
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
         with:
           path: binaries
+      - name: Display structure of downloaded files
+        run: ls -R binaries/
       - name: Create release
         uses: softprops/action-gh-release@v1
         with:
           files: binaries/**/*.tar.gz
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
