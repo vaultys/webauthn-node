@@ -4,7 +4,7 @@ import readline from "readline";
 
 // Import the native module
 // Note: You may need to configure your TypeScript setup to handle native modules
-// eslint-disable-next-line @typescript-eslint/no-var-requires
+// @ts-ignore
 import fido2 from "../binding";
 
 // Define types for WebAuthn API
