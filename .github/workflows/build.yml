@@ -71,7 +71,7 @@ jobs:
           }
 
           if (Test-Path "$ExtractPath\libfido2-1.15.0-win\bin") {
-              Copy-Item "$ExtractPath\libfido2-1.15.0-win\bin\*" -Destination "C:\Program Files\libfido2\bin\" -Recurse -Force
+              Copy-Item "$ExtractPath\libfido2-1.15.0-win\Win32\Release\v143\dynamic\*" -Destination "C:\Program Files\libfido2\bin\" -Recurse -Force
           } else {
               Get-ChildItem -Path $ExtractPath -Recurse -Directory | Where-Object { $_.Name -eq "bin" } | ForEach-Object {
                   Copy-Item "$($_.FullName)\*" -Destination "C:\Program Files\libfido2\bin\" -Recurse -Force
@@ -97,10 +97,6 @@ jobs:
           node-version: "20"
           cache: "npm"
 
-      - name: Create lib directories
-        run: mkdir -p lib/binding/${{ matrix.platform }}-x64
-        shell: bash
-
       - name: Install dependencies
         run: npm ci
 
@@ -110,11 +106,18 @@ jobs:
       - name: Create package
         run: npm run package
 
+      - name: Get package version
+        id: package_version
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+        shell: bash
+
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: webauthn-node-${{ matrix.platform }}
-          path: build/stage/*/*/*.tar.gz
+          path: build/stage/v${{ env.VERSION }}/*-v${{ env.VERSION }}-${{ matrix.platform }}*.tar.gz
           if-no-files-found: warn
 
   release:
