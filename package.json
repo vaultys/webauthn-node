@@ -5,7 +5,6 @@
   "main": "index.js",
   "scripts": {
     "install": "node-pre-gyp install --fallback-to-build || node install.js",
-    "prepare": "mkdir -p binding",
     "prebuild": "node-pre-gyp clean",
     "build": "node-pre-gyp rebuild && tsc",
     "build:ts": "tsc",
