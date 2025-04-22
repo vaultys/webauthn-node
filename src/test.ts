@@ -26,7 +26,6 @@ async function main() {
           userVerification: "preferred",
           requireResidentKey: false,
         },
-        pinPrompt: true,
       },
     });
 

@@ -11,6 +11,16 @@ const arch = os.arch();
 
 console.log(`Building for ${platform}-${arch}`);
 
+// Install libfido2 dependencies
+console.log("Installing libfido2 dependencies...");
+
+try {
+  require("./scripts/install-libfido2");
+} catch (error) {
+  console.error("Failed to install libfido2:", error);
+  process.exit(1);
+}
+
 // Make sure binding directory exists
 const bindingDir = path.join(__dirname, "binding", `${platform}-${arch}`);
 if (!fs.existsSync(bindingDir)) {

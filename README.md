@@ -23,7 +23,9 @@ The installation process will automatically:
 
 ## Usage
 
-```typescript
+Run this file, you will be prompted a pin if needed and if FIDO2_PIN has not been set
+
+```javascript
 import { credentials } from 'webauthn-node';
 import * as crypto from 'crypto';
 
@@ -52,10 +54,6 @@ async function main() {
           userVerification: "preferred",
           requireResidentKey: false
         },
-        // For authenticators requiring a PIN:
-        pin: "123456", // Directly provide PIN
-        // Or use interactive prompting:
-        // pinPrompt: true
       }
     });
 
@@ -78,8 +76,6 @@ async function main() {
         }],
         timeout: 60000,
         userVerification: "preferred",
-        // For authenticators requiring a PIN:
-        pin: "123456" // Provide the same PIN
       }
     });
 

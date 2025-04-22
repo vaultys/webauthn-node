@@ -1,8 +1,6 @@
 import { credentials, WebAuthn } from "../src/webauthn";
 import crypto from "crypto";
 
-const FIDO2_PIN = process.env.FIDO2_PIN || "";
-
 // Utility functions for the tests
 const generateRandom = (size: number): Buffer => crypto.randomBytes(size);
 
@@ -65,7 +63,6 @@ describe("WebAuthn API Tests", () => {
               requireResidentKey: false,
             },
             attestation: "none",
-            pin: FIDO2_PIN,
           },
         });
 
@@ -105,7 +102,6 @@ describe("WebAuthn API Tests", () => {
           ],
           timeout: 60000,
           userVerification: "discouraged",
-          pin: FIDO2_PIN,
         },
       });
 
@@ -144,7 +140,6 @@ describe("WebAuthn API Tests", () => {
               requireResidentKey: true,
             },
             attestation: "direct",
-            pin: FIDO2_PIN,
           },
         });
 
@@ -180,7 +175,6 @@ describe("WebAuthn API Tests", () => {
             ],
             timeout: 60000,
             userVerification: "required",
-            pin: FIDO2_PIN,
           },
         });
 
@@ -210,7 +204,7 @@ describe("WebAuthn API Tests", () => {
             challenge: generateRandom(32),
             timeout: 60000,
             userVerification: "required",
-            pin: FIDO2_PIN,
+
             // No allowCredentials - should use discoverable credentials
           },
         });
@@ -257,7 +251,6 @@ describe("WebAuthn API Tests", () => {
             extensions: {
               hmacCreateSecret: true,
             },
-            pin: FIDO2_PIN,
           },
         });
 
@@ -302,7 +295,6 @@ describe("WebAuthn API Tests", () => {
                 salt2: salt2,
               },
             },
-            pin: FIDO2_PIN,
           },
         });
 
@@ -354,7 +346,6 @@ describe("WebAuthn API Tests", () => {
                 evalByCredential: {},
               },
             },
-            pin: FIDO2_PIN,
           },
         });
 
@@ -388,7 +379,6 @@ describe("WebAuthn API Tests", () => {
                   },
                 },
               },
-              pin: FIDO2_PIN,
             },
           });
 
@@ -439,7 +429,6 @@ describe("WebAuthn API Tests", () => {
               authenticatorAttachment: "cross-platform",
             },
             attestation: "direct",
-            pin: FIDO2_PIN,
           },
         });
 
@@ -478,7 +467,6 @@ describe("WebAuthn API Tests", () => {
               userVerification: "discouraged",
             },
             attestation: "direct",
-            pin: FIDO2_PIN,
           },
         });
 
@@ -517,7 +505,6 @@ describe("WebAuthn API Tests", () => {
               userVerification: "discouraged",
             },
             attestation: "direct",
-            pin: FIDO2_PIN,
           },
         });
 

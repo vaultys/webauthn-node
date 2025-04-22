@@ -44,7 +44,6 @@ export interface PublicKeyCredentialCreationOptions {
   extensions?: Record<string, any>;
   device?: string; // Optional specific device path
   pin?: string;
-  pinPrompt?: boolean; // If true, prompt for PIN interactively
 }
 
 export interface PublicKeyCredentialRequestOptions {
@@ -56,7 +55,6 @@ export interface PublicKeyCredentialRequestOptions {
   extensions?: Record<string, any>;
   device?: string; // Optional specific device path
   pin?: string;
-  pinPrompt?: boolean; // If true, prompt for PIN interactively
 }
 
 export interface PublicKeyCredentialDescriptor {
@@ -205,63 +203,35 @@ export class WebAuthn {
     }
 
     // Handle PIN if required
-    let pin: string | undefined = publicKey.pin;
+    let pin: string | undefined = process.env.FIDO2_PIN || (await promptForPin());
 
-    try {
-      // First attempt - try without PIN if not explicitly provided
-      // Prepare parameters for libfido2
-      const createParams = {
-        rp: {
-          id: publicKey.rp.id,
-          name: publicKey.rp.name || this.options.rpName,
-        },
-        user: {
-          id: userId,
-          name: publicKey.user.name,
-          displayName: publicKey.user.displayName,
-        },
-        challenge: clientDataHash,
-        resident: publicKey.authenticatorSelection?.requireResidentKey || false,
-        userVerification: publicKey.authenticatorSelection?.userVerification || this.options.userVerification,
-        pin: pin,
-      };
+    // Prepare parameters for libfido2
+    const createParams = {
+      rp: {
+        id: publicKey.rp.id,
+        name: publicKey.rp.name || this.options.rpName,
+      },
+      user: {
+        id: userId,
+        name: publicKey.user.name,
+        displayName: publicKey.user.displayName,
+      },
+      challenge: clientDataHash,
+      resident: publicKey.authenticatorSelection?.requireResidentKey || false,
+      userVerification: publicKey.authenticatorSelection?.userVerification || this.options.userVerification,
+      pin: pin,
+    };
 
-      if (publicKey.device) {
-        (createParams as any).device = publicKey.device;
-      }
-
-      try {
-        // Try to create credential
-        const credential = fido2.makeCredential(createParams);
-
-        // If successful, add client data JSON and return
-        credential.response.clientDataJSON = Buffer.from(clientDataJSON);
-        return credential;
-      } catch (error: any) {
-        // If PIN is required and we didn't provide one, or the PIN was incorrect
-        if (error.message.includes("FIDO_ERR_PIN_REQUIRED") || error.message.includes("FIDO_ERR_PIN_INVALID")) {
-          // If pinPrompt is true, prompt for PIN
-          if (publicKey.pinPrompt) {
-            pin = await promptForPin();
-            // Update createParams with the new PIN
-            createParams.pin = pin;
-
-            // Try again with the PIN
-            const credential = fido2.makeCredential(createParams);
-            credential.response.clientDataJSON = Buffer.from(clientDataJSON);
-            return credential;
-          } else {
-            // Otherwise, pass through the error
-            throw error;
-          }
-        } else {
-          // For other errors, pass through
-          throw error;
-        }
-      }
-    } catch (error: any) {
-      throw new Error(`Error: ${error.message}`);
+    if (publicKey.device) {
+      (createParams as any).device = publicKey.device;
     }
+
+    // Try to create credential
+    const credential = fido2.makeCredential(createParams);
+
+    // If successful, add client data JSON and return
+    credential.response.clientDataJSON = Buffer.from(clientDataJSON);
+    return credential;
   }
 
   /**
@@ -308,7 +278,7 @@ export class WebAuthn {
     // Hash the client data
     const clientDataHash = createHash("sha256").update(clientDataJSON).digest();
 
-    let pin: string | undefined = publicKey.pin;
+    let pin: string | undefined = process.env.FIDO2_PIN || (await promptForPin());
     // Prepare parameters for libfido2
     const assertionParams: {
       rpId: string;
@@ -351,35 +321,12 @@ export class WebAuthn {
     }
 
     // Get assertion with libfido2
-    try {
-      // Try to get assertion
-      const assertion = fido2.getAssertion(assertionParams);
+    // Try to get assertion
+    const assertion = fido2.getAssertion(assertionParams);
 
-      // If successful, add client data JSON and return
-      assertion.response.clientDataJSON = Buffer.from(clientDataJSON);
-      return assertion;
-    } catch (error: any) {
-      // If PIN is required and we didn't provide one, or the PIN was incorrect
-      if (error.message.includes("FIDO_ERR_PIN_REQUIRED") || error.message.includes("FIDO_ERR_PIN_INVALID")) {
-        // If pinPrompt is true, prompt for PIN
-        if (publicKey.pinPrompt) {
-          pin = await promptForPin();
-          // Update assertionParams with the new PIN
-          assertionParams.pin = pin;
-
-          // Try again with the PIN
-          const assertion = fido2.getAssertion(assertionParams);
-          assertion.response.clientDataJSON = Buffer.from(clientDataJSON);
-          return assertion;
-        } else {
-          // Otherwise, pass through the error
-          throw error;
-        }
-      } else {
-        // For other errors, pass through
-        throw error;
-      }
-    }
+    // If successful, add client data JSON and return
+    assertion.response.clientDataJSON = Buffer.from(clientDataJSON);
+    return assertion;
   }
 }
 
